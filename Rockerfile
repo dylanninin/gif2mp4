@@ -1,0 +1,13 @@
+# build image
+FROM msoap/shell2http:latest
+EXPORT /app/shell2http
+
+# build image
+FROM opencoconut/ffmpeg
+RUN mkdir /app
+IMPORT shell2http /bin/shell2http
+ADD ./main.sh /app/main.sh
+EXPOSE 9100
+ENTRYPOINT ["/app/main.sh"]
+PUSH dylanninin/gif2mp4:v1
+PUSh dylanninin/gif2mp4:latest
