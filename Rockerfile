@@ -6,8 +6,9 @@ EXPORT /app/shell2http
 FROM opencoconut/ffmpeg
 RUN mkdir /app
 IMPORT shell2http /bin/shell2http
+ADD ./cleanup.sh /etc/periodic/hourly/cleanup.sh
 ADD ./main.sh /app/main.sh
 EXPOSE 9100
 ENTRYPOINT ["/app/main.sh"]
-PUSH dylanninin/gif2mp4:v1
+PUSH dylanninin/gif2mp4:v2
 PUSh dylanninin/gif2mp4:latest

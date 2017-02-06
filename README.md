@@ -16,6 +16,11 @@ Started
     -rw-r- r-   1 dylanninin  staff   930K Feb  8 11:04 demo.mp4
     ```
 
+Testing
+========
+
+- run: `./tests`
+
 Build from scratch
 ========
 
