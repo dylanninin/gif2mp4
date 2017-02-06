@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# build docker image
+./build
+
+# setup
+mkdir -p ./tmp
+
+# run container
+PORT=9100
+CONTAINER_ID=$(docker run -d --rm -p ${PORT}:9100 dylanninin/gif2mp4)
+
+# waiting for container
+WAIT=5
+nc -z -t localhost ${PORT} ${WAIT}
+STATUS=$?
+if [ "${STATUS}" != "0" ]; then
+  echo "docker container ${CONTAINER_ID} is not ready within ${WAIT} seconds"
+  exit ${STATUS}
+fi
+
+# helpers
+bad_case() {
+  printf '\n'
+  printf '%0.s*' {1..32}
+  printf '\n'
+}
+
+# test case
+GIF2MP4_HANDLER_URL=http://localhost:${PORT}/handler
+
+GIF_URLS=(http://bit.ly/2lfBP0t http://bit.ly/2lfv3Yp http://dylanninin.com/not_exist.gif)
+for i in ${GIF_URLS[@]}
+do
+  output=tmp/$(date +%s${RANDOM}).mp4
+  cmd="wget -q \"${GIF2MP4_HANDLER_URL}?url=${i}\" -O ${output}"
+  echo "testing: ${cmd}"
+  echo "$cmd" | sh
+  expect=$(file ${output} | grep MP4)
+  if [ "${expect}" = "" ] ; then
+    bad_case
+    echo "F"
+    echo "Failed: gif2mp4 ${i} -> ${output} failed"
+    bad_case
+  else
+    echo "OK"
+  fi
+done
+
+# teardown
+find ./tmp -name "*.mp4" -delete
+rmdir ./tmp
+CONTAINER_ID=$(docker stop ${CONTAINER_ID})
